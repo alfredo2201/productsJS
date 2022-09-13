@@ -1,0 +1,17 @@
+{
+  "name": "actividad05_216714",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Isai Perez",
+  "license": "ISC",
+  "dependencies": {
+    "mysql": "^2.18.1",
+    "readline-sync": "^1.4.10",
+    "underscore": "^1.13.4"
+  }
+}
