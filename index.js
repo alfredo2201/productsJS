@@ -39,7 +39,7 @@ const main = async () => {
         break;
       case 1:
         let productToAdd = registerProduct();
-        resp = await ProductoController.register(productToAdd);
+        resp = await ProductoController.register(productToAdd);        
         console.log(resp);
         break;
       case 2:
@@ -55,13 +55,11 @@ const main = async () => {
       case 4:
         let productToObtain = deleteAndGetProduct();
         resp = await ProductoController.getProduct(productToObtain);
-        console.log(resp);
+        console.log(JSON.stringify(resp, null, 2));
         break;
       case 5:
-        resp = await ProductoController.getAll();
-        for (let i = 0; i < resp.length; i++) {
-          console.log(resp[i]);
-        }
+        resp = await ProductoController.getAll();        
+        console.log("All users:", JSON.stringify(resp, null, 2));
         break;
       case 6:
         sigo = false;
@@ -69,9 +67,9 @@ const main = async () => {
   }
 };
 /**
- * Funcion que muestra en consola los valores a 
+ * Funcion que muestra en consola los valores a
  * ingresar para registrar un producto
- * @returns 
+ * @returns
  */
 const registerProduct = () => {
   let id;
@@ -118,20 +116,20 @@ const registerProduct = () => {
 };
 /**
  * Funcion que pide el id para buscar el producto y
- * luego pedir los demas atributos de producto 
+ * luego pedir los demas atributos de producto
  * para actualizarlos en la base de datos
- * @returns 
+ * @returns
  */
 const updateProduct = async () => {
-  let id
+  let id;
   let name;
   let price;
   let stock;
   let lastSupplyDate = null;
   while (true) {
     id = deleteAndGetProduct();
-    let res = await ProductoController.getProduct(id);
-    if (res == -1) {
+    let product = await ProductoController.getProduct(id);
+    if (product == -1) {
       console.log("Product not found");
       continue;
     }
@@ -162,12 +160,12 @@ const updateProduct = async () => {
     stock = parseInt(stock);
     break;
   }
-  return { id, name, price, stock, lastSupplyDate };
+  return { id, name, price, stock, lastSupplyDate};
 };
 /**
  * Funcion que solicita el id para eliminar u obtener algun
  * producto de la base de datos.
- * @returns 
+ * @returns
  */
 const deleteAndGetProduct = () => {
   let id;

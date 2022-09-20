@@ -1,5 +1,7 @@
 import { validateType } from "../../../validaciones.js";
-import { getConection } from "../connection.js";
+// import { getConection } from "../native.connection.js";
+import { Product } from "../../models/Product.js";
+import { Op } from "sequelize";
 
 const registerProduct = (value) => {
   if (value === null) {
@@ -8,27 +10,18 @@ const registerProduct = (value) => {
   if (!validateType(value, "object")) {
     return new Error("Invalid type");
   }
-  const connection = getConection();
-  return new Promise((resolve, reject) => {
-    connection.connect((err) => {
-      if (err) {
-        console.log(err);
-        reject("Error connecting to database");
-      }
-      const sqlCode = `INSERT INTO products(product_id, name, price, stock, lastSupplyDate) VALUES('${
-        value.id
-      }','${value.name}',${value.price},${value.stock},'${value.lastSupplyDate
-        .toISOString()
-        .slice(0, 19)
-        .replace("T", " ")}')`;
-      connection.query(sqlCode, (err) => {
-        if (err) {
-          reject("Error sql code");
-        }
-        resolve("Product added");
-      });
-      connection.end();
+  return new Promise(async (resolve, reject) => {
+    const product = Product.build({
+      id: value.id,
+      name: value.name,
+      price: value.price,
+      stock: value.stock,
+      lastSupplyDate: value.lastSupplyDate,
     });
+    await product
+      .save()
+      .then(() => resolve("Product successfully created"))
+      .catch(() => resolve("Product failed to be created"));
   });
 };
 
@@ -42,33 +35,19 @@ const updateProduct = (value) => {
     return new Error("Parameter without value");
   }
   if (!validateType(value, "object")) {
-    return new Error("invalid type");
+    return new Error("Invalid type");
   }
-  const connection = getConection();
-  const sqlCode = `UPDATE products SET 
-  name ='${value.name}',
-  price =${value.price}, 
-  stock =${value.stock},
-  lastSupplyDate = '${value.lastSupplyDate
-    .toISOString()
-    .slice(0, 19)
-    .replace("T", " ")} ' 
-    WHERE product_id = '${value.id}'`;
-  return new Promise((resolve, reject) => {
-    connection.connect((err) => {
-      if (err) {
-        console.log(err);
-        reject("Error connecting to database");
-      }
-      connection.query(sqlCode, (err, result) => {
-        if (err) {
-          console.log(err);
-          reject("Failed to update the product");
-        }
-        resolve(result);
-      });
-      connection.end();
-    });
+  return new Promise(async (resolve, reject) => {
+    await Product.update({
+        name: value.name,
+        price: value.price,
+        stock: value.stock,
+        lastSupplyDate: value.lastSupplyDate,
+      }, {
+        where: { id: value.id}
+      })
+      .then(() => resolve("Product successfully updated"))
+      .catch(() => resolve("Product failed to be updated"));
   });
 };
 
@@ -84,23 +63,12 @@ const deleteProduct = (value) => {
   if (!validateType(value, "string")) {
     return new Error("Invalid type");
   }
-  const connection = getConection();
-  const sqlCode = `DELETE FROM products WHERE product_id = '${value}'`;
-  return new Promise((resolve, reject) => {
-    connection.connect((err) => {
-      if (err) {
-        console.log(err);
-        reject("Error connecting to database");
-      }
-      connection.query(sqlCode, (err, result) => {
-        if (err) {
-          console.log(err);
-          reject("Failed to remove product");
-        }
-        resolve(result);
-      });
-      connection.end();
-    });
+  return new Promise(async (resolve, reject) => {
+    await Product.destroy({
+      where: { id: value },
+    })
+      .then(() => resolve("Product successfully deleted"))
+      .catch(() => resolve("Product failed to be deleted"));
   });
 };
 /**
@@ -116,24 +84,19 @@ const getProduct = (value) => {
   if (!validateType(value, "string")) {
     return new Error("Invalid type");
   }
-  const connection = getConection();
-  const sqlCode = `SELECT * FROM products WHERE product_id = '${value}'`;
   return new Promise((resolve, reject) => {
-    connection.connect((err) => {
-      if (err) {
-        console.log(err);
-        reject("Error connecting to database");
-      }
-      connection.query(sqlCode, (err, result) => {
-        if (err) {
-          console.log(err);
-          reject("Error getting the product");
-        }
-        console.log(result)
-        resolve(result);
-      });
-      connection.end();
+    const products = Product.findAll({
+      where: {
+        id: {
+          [Op.eq]: value,
+        },
+      },
     });
+    if (products.length === 0) {
+      reject("Product not found");
+    } else {
+      resolve(products);
+    }
   });
 };
 /**
@@ -141,23 +104,13 @@ const getProduct = (value) => {
  * @returns arrat de productos
  */
 const getAll = () => {
-  const connection = getConection();
-  const sqlCode = `SELECT * FROM products`;
   return new Promise((resolve, reject) => {
-    connection.connect((err) => {
-      if (err) {
-        console.log(err);
-        reject("Error connecting to database");
-      }
-      connection.query(sqlCode, (err, result) => {
-        if (err) {
-          console.log(err);
-          reject("Error getting products");
-        }
-        resolve(result);
-      });
-      connection.end();
-    });
+    const products = Product.findAll();
+    if (products.length === 0) {
+      reject("Product not found");
+    } else {
+      resolve(products);
+    }
   });
 };
 

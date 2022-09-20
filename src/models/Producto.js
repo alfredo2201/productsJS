@@ -36,6 +36,14 @@ class Producto {
       throw new Error("No se permiten numero menor a. Vuelve a intentarlo");
     this._price = value;
   }
+  set stock(value) {
+    if (!validateType(value, "number")) {
+      throw new Error("Valor inválido. Vuelve a intentarlo");
+    }
+    if (value <= 0)
+      throw new Error("No se permiten numero menor a. Vuelve a intentarlo");
+    this._stock = value;
+  }
   set lastSupplyDate(value) {
     if (!validateType(value, "object")) {
       throw new Error("Valor inválido. Vuelve a intentarlo");
@@ -57,6 +65,9 @@ class Producto {
   }
   get lastSupplyDate() {
     return this._lastSupplyDate;
+  }
+  get stock() {
+    return this._stock;
   }
 }
 

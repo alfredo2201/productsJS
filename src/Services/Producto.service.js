@@ -6,15 +6,17 @@ import * as repo from "../Data/repositories/Producto.repo.js";
  * @returns
  */
  const registerProduct = async (values) => {
+  
     let producto = new Producto(
       values.id,
       values.name,
       values.price,
       values.stock,
       values.lastSupplyDate
-    );
-    const res = await repo.registerProduct(producto);
-    return res;
+    );    
+    let resp = await repo.registerProduct(producto).catch(console.log("Error registering product"));    
+    return resp
+    
   };
   /**
    * Funcion que actualiza un producto, dato por el id ingresado por consola
@@ -28,7 +30,8 @@ import * as repo from "../Data/repositories/Producto.repo.js";
       values.stock,
       values.lastSupplyDate
     );
-    return await repo.updateProduct(producto);
+    let resp = await repo.updateProduct(producto, values.product).catch(console.log("Error updating product"));     
+    return resp
   };
   
   /**
@@ -37,11 +40,6 @@ import * as repo from "../Data/repositories/Producto.repo.js";
    * @returns
    */
   const deleteProduct = async (value) => {
-    let req = repo.getProduct(value);
-    if (req == -1) {
-      console.log("Producto con id: " + value + " no encontrado");
-      return;
-    }
     return await repo.deleteProduct(value);
   };
   
@@ -52,7 +50,7 @@ import * as repo from "../Data/repositories/Producto.repo.js";
    */
   const getProduct = async (value) => {  
     let req = await repo.getProduct(value);
-    if (req === "Error getting the product") {
+    if (req === "Product not found") {
       console.error("Product with code: " + value + " no found");
       return -1;
     }
